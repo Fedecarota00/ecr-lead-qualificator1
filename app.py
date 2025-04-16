@@ -232,7 +232,7 @@ if st.button(TEXT["run_button"]) and domains:
         df_salesflow["Select"] = False
         st.session_state.df_salesflow = df_salesflow
 
-# === EXPORT UI ===
+# === EXPORT UI + ZAPIER ===
 if not st.session_state.df_salesflow.empty:
     st.markdown("### Step 5 – Select and Export Your Results")
     st.markdown("✅ Use the checkboxes below to select leads to export or send via Zapier.")
@@ -252,7 +252,6 @@ if not st.session_state.df_salesflow.empty:
 
     selected_leads_df = edited_df[edited_df["Select"] == True]
     st.caption(f"✅ You selected {len(selected_leads_df)} lead(s).")
-    st.session_state.edited_df = edited_df
 
     if selected_leads_df.empty:
         st.warning("⚠ No leads selected. Please select at least one lead to enable export and Zapier.")
@@ -285,11 +284,7 @@ if not st.session_state.df_salesflow.empty:
         st.download_button(TEXT["download_zip"], data=zip_buffer.getvalue(), file_name="lead_outputs_selected.zip")
         st.download_button(TEXT["download_sugarcrm"], data=buffer_sugar_csv.getvalue(), file_name="sugarcrm_leads_selected.csv")
 
-# === SEND TO ZAPIER ===
-if not st.session_state.df_salesflow.empty and "edited_df" in st.session_state:
-    selected_leads_df = st.session_state.edited_df[st.session_state.edited_df["Select"] == True]
-
-    if not selected_leads_df.empty:
+        # === SEND TO ZAPIER ===
         if st.button("Send Selected Leads to SugarCRM via Zapier"):
             st.write("📤 Sending selected leads to Zapier...")
             zap_success = 0
@@ -307,6 +302,3 @@ if not st.session_state.df_salesflow.empty and "edited_df" in st.session_state:
                 if send_to_zapier(zapier_payload):
                     zap_success += 1
             st.success(f"✅ {zap_success}/{len(selected_leads_df)} selected leads sent to SugarCRM via Zapier.")
-    else:
-        st.info("⚠ No leads selected. Select at least one lead before sending to SugarCRM.")
-
