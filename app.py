@@ -233,15 +233,16 @@ if st.button(TEXT["run_button"]) and domains:
         st.session_state.df_salesflow = df_salesflow
 
 # === EXPORT UI + ZAPIER ===
-if not st.session_state.df_salesflow.empty:
+if "df_salesflow" in st.session_state and not st.session_state.df_salesflow.empty:
     st.markdown("### Step 5 – Select and Export Your Results")
     st.markdown("✅ Use the checkboxes below to select leads to export or send via Zapier.")
 
-    # 🔧 Enforce correct boolean type for checkbox to be tracked
-    st.session_state.df_salesflow["Select"] = st.session_state.df_salesflow["Select"].astype(bool)
+    # ✅ Work on a local copy to avoid Streamlit Cloud checkbox issues
+    df_export = st.session_state.df_salesflow.copy()
+    df_export["Select"] = df_export["Select"].astype(bool)
 
     edited_df = st.data_editor(
-        st.session_state.df_salesflow,
+        df_export,
         use_container_width=True,
         num_rows="dynamic",
         key="lead_export",
