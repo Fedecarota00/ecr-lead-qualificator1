@@ -239,7 +239,7 @@ if st.button(TEXT["run_button"]) and domains:
             st.session_state.df_salesflow,
             use_container_width=True,
             num_rows="dynamic",
-            key="lead_editor"
+            key="lead_export"
         )
 
         selected_leads = edited_df[edited_df["Select"] == True]
@@ -281,7 +281,7 @@ if not st.session_state.df_salesflow.empty:
         st.session_state.df_salesflow,
         use_container_width=True,
         num_rows="dynamic",
-        key="lead_editor"
+        key="lead_zapier"
     )
 
     # Use the returned DataFrame directly
