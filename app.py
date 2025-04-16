@@ -229,7 +229,7 @@ if st.button(TEXT["run_button"]) and domains:
             })
 
         df_salesflow = pd.DataFrame(records)
-        df_salesflow["Select"] = True
+        df_salesflow["Select"] = False
         st.session_state.df_salesflow = df_salesflow
 
        # === EXPORT UI ===
