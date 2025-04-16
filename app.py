@@ -277,8 +277,7 @@ if st.button(TEXT["run_button"]) and domains:
 
 # === SEND TO ZAPIER ===
 if not st.session_state.df_salesflow.empty:
-    selected_leads = st.session_state.lead_editor
-    selected_leads_df = pd.DataFrame(selected_leads)
+    selected_leads_df = st.session_state.lead_editor
     selected_leads_df = selected_leads_df[selected_leads_df["Select"] == True]
 
     if not selected_leads_df.empty:
