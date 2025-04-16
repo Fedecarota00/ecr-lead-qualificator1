@@ -237,29 +237,32 @@ if "df_salesflow" in st.session_state and not st.session_state.df_salesflow.empt
     st.markdown("### Step 5 – Select and Export Your Results")
     st.markdown("✅ Use the checkboxes below to select leads to export or send via Zapier.")
 
-    # ✅ Work on a local copy to avoid Streamlit Cloud checkbox issues
+    # 👇 Work with a clean local copy
     df_export = st.session_state.df_salesflow.copy()
+
+    # Ensure Select column is bool type
+    if "Select" not in df_export.columns:
+        df_export["Select"] = False
     df_export["Select"] = df_export["Select"].astype(bool)
 
+    # Render editable table
     edited_df = st.data_editor(
         df_export,
         use_container_width=True,
-        num_rows="dynamic",
-        key="lead_export",
+        key="lead_export_editor",
         column_config={
-            "Select": st.column_config.CheckboxColumn(
-                label="Select",
-                default=False
-            )
+            "Select": st.column_config.CheckboxColumn(label="Select", default=False)
         }
     )
 
-    selected_leads_df = edited_df[edited_df["Select"] == True]
+    # Filter selected rows
+    selected_leads_df = edited_df[edited_df["Select"]]
+
     st.caption(f"✅ You selected {len(selected_leads_df)} lead(s).")
 
-    if selected_leads_df.empty:
-        st.warning("⚠ No leads selected. Please select at least one lead to enable export and Zapier.")
-    else:
+    # Only show buttons if something is selected
+    if not selected_leads_df.empty:
+        # === EXPORT LOGIC ===
         buffer_xlsx = BytesIO()
         selected_leads_df.drop(columns=["Select"]).to_excel(buffer_xlsx, index=False)
 
@@ -283,14 +286,13 @@ if "df_salesflow" in st.session_state and not st.session_state.df_salesflow.empt
         buffer_sugar_csv = BytesIO()
         df_sugarcrm.to_csv(buffer_sugar_csv, index=False, encoding="utf-8-sig")
 
-        st.download_button(TEXT["download_xlsx"], data=buffer_xlsx.getvalue(), file_name="qualified_leads_selected.xlsx")
-        st.download_button(TEXT["download_csv"], data=buffer_csv.getvalue(), file_name="salesflow_leads_selected.csv")
-        st.download_button(TEXT["download_zip"], data=zip_buffer.getvalue(), file_name="lead_outputs_selected.zip")
-        st.download_button(TEXT["download_sugarcrm"], data=buffer_sugar_csv.getvalue(), file_name="sugarcrm_leads_selected.csv")
+        st.download_button("⬇️ Download Excel", data=buffer_xlsx.getvalue(), file_name="qualified_leads_selected.xlsx")
+        st.download_button("⬇️ Download CSV", data=buffer_csv.getvalue(), file_name="salesflow_leads_selected.csv")
+        st.download_button("⬇️ Download ZIP", data=zip_buffer.getvalue(), file_name="lead_outputs_selected.zip")
+        st.download_button("⬇️ Download SugarCRM CSV", data=buffer_sugar_csv.getvalue(), file_name="sugarcrm_leads_selected.csv")
 
-        # === SEND TO ZAPIER ===
-        if st.button("Send Selected Leads to SugarCRM via Zapier"):
-            st.write("📤 Sending selected leads to Zapier...")
+        # === ZAPIER BUTTON ===
+        if st.button("📤 Send Selected Leads to SugarCRM via Zapier"):
             zap_success = 0
             for _, row in selected_leads_df.iterrows():
                 zapier_payload = {
@@ -305,4 +307,6 @@ if "df_salesflow" in st.session_state and not st.session_state.df_salesflow.empt
                 }
                 if send_to_zapier(zapier_payload):
                     zap_success += 1
-            st.success(f"✅ {zap_success}/{len(selected_leads_df)} selected leads sent to SugarCRM via Zapier.")
+            st.success(f"✅ {zap_success}/{len(selected_leads_df)} selected leads sent to SugarCRM.")
+    else:
+        st.info("⚠️ No leads selected yet. Select at least one to show download and Zapier options.")
