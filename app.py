@@ -279,15 +279,12 @@ if not st.session_state.df_salesflow.empty:
                 "domain": row["Company Domain"]
             }
 
-            st.json(zapier_payload)
-
             if send_to_zapier(zapier_payload):
                 zap_success += 1
 
         st.success(f"✅ {zap_success}/{len(st.session_state.df_salesflow)} leads sent to SugarCRM via Zapier.")
 else:
     st.info("Run lead qualification first to see this button.")
-
 
 
 
