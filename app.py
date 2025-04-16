@@ -229,7 +229,7 @@ if st.button(TEXT["run_button"]) and domains:
             })
 
         df_salesflow = pd.DataFrame(records)
-        df_salesflow["Select"] = False
+        df_salesflow["Select"] = pd.Series([False] * len(df_salesflow), dtype=bool)
         st.session_state.df_salesflow = df_salesflow
 
 # === EXPORT UI + ZAPIER ===
