@@ -237,15 +237,22 @@ if st.button(TEXT["run_button"]) and domains:
         st.markdown("✅ Use the checkboxes below to select leads to export or send via Zapier.")
 
         edited_df = st.data_editor(
-            st.session_state.df_salesflow,
-            use_container_width=True,
-            num_rows="dynamic",
-            key="lead_export"
+    st.session_state.df_salesflow,
+    use_container_width=True,
+    num_rows="dynamic",
+    key="lead_export",
+    column_config={
+        "Select": st.column_config.CheckboxColumn(
+            label="Select",
+            default=True
         )
+    }
+)
 
-        st.session_state.edited_df = edited_df
+       selected_leads_df = edited_df[edited_df["Select"] == True]
+       st.caption(f"✅ You selected {len(selected_leads_df)} lead(s).")
 
-        selected_leads_df = edited_df[edited_df["Select"] == True]
+st.session_state.edited_df = edited_df
 
         if selected_leads_df.empty:
             st.warning("⚠ No leads selected. Please select at least one lead to enable export and Zapier.")
