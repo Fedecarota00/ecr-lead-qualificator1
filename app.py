@@ -245,6 +245,12 @@ if "df_salesflow" in st.session_state and not st.session_state.df_salesflow.empt
         df_export["Select"] = False
     df_export["Select"] = df_export["Select"].astype(bool)
 
+    # ✅ Move Select to first column
+    cols = df_export.columns.tolist()
+    if "Select" in cols:
+        cols.insert(0, cols.pop(cols.index("Select")))
+        df_export = df_export[cols]
+
     # Render editable table
     edited_df = st.data_editor(
         df_export,
