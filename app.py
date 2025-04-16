@@ -243,6 +243,8 @@ if st.button(TEXT["run_button"]) and domains:
             key="lead_export"
         )
 
+        st.session_state.edited_df = edited_df
+
         selected_leads = edited_df[edited_df["Select"] == True]
 
         if selected_leads.empty:
@@ -278,7 +280,7 @@ if st.button(TEXT["run_button"]) and domains:
 
 # === SEND TO ZAPIER ===
 if not st.session_state.df_salesflow.empty:
-    selected_leads_df = edited_df[edited_df["Select"] == True]
+    selected_leads_df = st.session_state.edited_df[st.session_state.edited_df["Select"] == True]
 
     if not selected_leads_df.empty:
         if st.button("Send Selected Leads to SugarCRM via Zapier"):
