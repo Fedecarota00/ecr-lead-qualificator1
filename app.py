@@ -245,23 +245,23 @@ if st.button(TEXT["run_button"]) and domains:
 
         st.session_state.edited_df = edited_df
 
-        selected_leads = edited_df[edited_df["Select"] == True]
+        selected_leads_df = edited_df[edited_df["Select"] == True]
 
-        if selected_leads.empty:
+        if selected_leads_df.empty:
             st.warning("⚠ No leads selected. Please select at least one lead to enable export and Zapier.")
         else:
             buffer_xlsx = BytesIO()
-            selected_leads.drop(columns=["Select"]).to_excel(buffer_xlsx, index=False)
+            selected_leads_df.drop(columns=["Select"]).to_excel(buffer_xlsx, index=False)
 
             buffer_csv = BytesIO()
-            selected_leads.drop(columns=["Select"]).to_csv(buffer_csv, index=False, encoding="utf-8-sig")
+            selected_leads_df.drop(columns=["Select"]).to_csv(buffer_csv, index=False, encoding="utf-8-sig")
 
             zip_buffer = BytesIO()
             with zipfile.ZipFile(zip_buffer, "w") as zipf:
                 zipf.writestr("salesflow_leads_selected.xlsx", buffer_xlsx.getvalue())
                 zipf.writestr("salesflow_leads_selected.csv", buffer_csv.getvalue())
 
-            df_sugarcrm = selected_leads.rename(columns={
+            df_sugarcrm = selected_leads_df.rename(columns={
                 "First Name": "first_name",
                 "Last Name": "last_name",
                 "Job Title": "title",
@@ -302,14 +302,3 @@ if not st.session_state.df_salesflow.empty:
             st.success(f"✅ {zap_success}/{len(selected_leads_df)} selected leads sent to SugarCRM via Zapier.")
     else:
         st.info("⚠ No leads selected. Select at least one lead before sending to SugarCRM.")
-
-
-
-
-
-
-
-
-
-
-
