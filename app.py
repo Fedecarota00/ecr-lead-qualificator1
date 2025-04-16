@@ -287,7 +287,7 @@ if not st.session_state.df_salesflow.empty:
 # Use the returned DataFrame directly
 selected_leads_df = edited_df[edited_df["Select"] == True]
 
-    if not selected_leads_df.empty:
+if not selected_leads_df.empty:
         if st.button("Send Selected Leads to SugarCRM via Zapier"):
             st.write("📤 Sending selected leads to Zapier...")
             zap_success = 0
