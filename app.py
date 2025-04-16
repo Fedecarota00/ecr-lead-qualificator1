@@ -232,61 +232,61 @@ if st.button(TEXT["run_button"]) and domains:
         df_salesflow["Select"] = False
         st.session_state.df_salesflow = df_salesflow
 
-       # === EXPORT UI ===
-st.markdown("### Step 5 – Select and Export Your Results")
-st.markdown("✅ Use the checkboxes below to select leads to export or send via Zapier.")
+# === EXPORT UI ===
+if not st.session_state.df_salesflow.empty:
+    st.markdown("### Step 5 – Select and Export Your Results")
+    st.markdown("✅ Use the checkboxes below to select leads to export or send via Zapier.")
 
-edited_df = st.data_editor(
-    st.session_state.df_salesflow,
-    use_container_width=True,
-    num_rows="dynamic",
-    key="lead_export",
-    column_config={
-        "Select": st.column_config.CheckboxColumn(
-            label="Select",
-            default=False
-        )
-    }
-)
+    edited_df = st.data_editor(
+        st.session_state.df_salesflow,
+        use_container_width=True,
+        num_rows="dynamic",
+        key="lead_export",
+        column_config={
+            "Select": st.column_config.CheckboxColumn(
+                label="Select",
+                default=False
+            )
+        }
+    )
 
-selected_leads_df = edited_df[edited_df["Select"] == True]
-st.caption(f"✅ You selected {len(selected_leads_df)} lead(s).")
+    selected_leads_df = edited_df[edited_df["Select"] == True]
+    st.caption(f"✅ You selected {len(selected_leads_df)} lead(s).")
+    st.session_state.edited_df = edited_df
 
-st.session_state.edited_df = edited_df
+    if selected_leads_df.empty:
+        st.warning("⚠ No leads selected. Please select at least one lead to enable export and Zapier.")
+    else:
+        buffer_xlsx = BytesIO()
+        selected_leads_df.drop(columns=["Select"]).to_excel(buffer_xlsx, index=False)
 
-if selected_leads_df.empty:
-    st.warning("⚠ No leads selected. Please select at least one lead to enable export and Zapier.")
-else:
-    buffer_xlsx = BytesIO()
-    selected_leads_df.drop(columns=["Select"]).to_excel(buffer_xlsx, index=False)
+        buffer_csv = BytesIO()
+        selected_leads_df.drop(columns=["Select"]).to_csv(buffer_csv, index=False, encoding="utf-8-sig")
 
-    buffer_csv = BytesIO()
-    selected_leads_df.drop(columns=["Select"]).to_csv(buffer_csv, index=False, encoding="utf-8-sig")
+        zip_buffer = BytesIO()
+        with zipfile.ZipFile(zip_buffer, "w") as zipf:
+            zipf.writestr("salesflow_leads_selected.xlsx", buffer_xlsx.getvalue())
+            zipf.writestr("salesflow_leads_selected.csv", buffer_csv.getvalue())
 
-    zip_buffer = BytesIO()
-    with zipfile.ZipFile(zip_buffer, "w") as zipf:
-        zipf.writestr("salesflow_leads_selected.xlsx", buffer_xlsx.getvalue())
-        zipf.writestr("salesflow_leads_selected.csv", buffer_csv.getvalue())
+        df_sugarcrm = selected_leads_df.rename(columns={
+            "First Name": "first_name",
+            "Last Name": "last_name",
+            "Job Title": "title",
+            "Company": "account_name",
+            "LinkedIn URL": "linkedin_c",
+            "Personalized Message": "description"
+        }).drop(columns=["Select"])
 
-    df_sugarcrm = selected_leads_df.rename(columns={
-        "First Name": "first_name",
-        "Last Name": "last_name",
-        "Job Title": "title",
-        "Company": "account_name",
-        "LinkedIn URL": "linkedin_c",
-        "Personalized Message": "description"
-    }).drop(columns=["Select"])
+        buffer_sugar_csv = BytesIO()
+        df_sugarcrm.to_csv(buffer_sugar_csv, index=False, encoding="utf-8-sig")
 
-    buffer_sugar_csv = BytesIO()
-    df_sugarcrm.to_csv(buffer_sugar_csv, index=False, encoding="utf-8-sig")
-
-    st.download_button(TEXT["download_xlsx"], data=buffer_xlsx.getvalue(), file_name="qualified_leads_selected.xlsx")
-    st.download_button(TEXT["download_csv"], data=buffer_csv.getvalue(), file_name="salesflow_leads_selected.csv")
-    st.download_button(TEXT["download_zip"], data=zip_buffer.getvalue(), file_name="lead_outputs_selected.zip")
-    st.download_button(TEXT["download_sugarcrm"], data=buffer_sugar_csv.getvalue(), file_name="sugarcrm_leads_selected.csv")
+        st.download_button(TEXT["download_xlsx"], data=buffer_xlsx.getvalue(), file_name="qualified_leads_selected.xlsx")
+        st.download_button(TEXT["download_csv"], data=buffer_csv.getvalue(), file_name="salesflow_leads_selected.csv")
+        st.download_button(TEXT["download_zip"], data=zip_buffer.getvalue(), file_name="lead_outputs_selected.zip")
+        st.download_button(TEXT["download_sugarcrm"], data=buffer_sugar_csv.getvalue(), file_name="sugarcrm_leads_selected.csv")
 
 # === SEND TO ZAPIER ===
-if not st.session_state.df_salesflow.empty:
+if not st.session_state.df_salesflow.empty and "edited_df" in st.session_state:
     selected_leads_df = st.session_state.edited_df[st.session_state.edited_df["Select"] == True]
 
     if not selected_leads_df.empty:
@@ -309,3 +309,4 @@ if not st.session_state.df_salesflow.empty:
             st.success(f"✅ {zap_success}/{len(selected_leads_df)} selected leads sent to SugarCRM via Zapier.")
     else:
         st.info("⚠ No leads selected. Select at least one lead before sending to SugarCRM.")
+
