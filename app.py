@@ -244,7 +244,7 @@ edited_df = st.data_editor(
     column_config={
         "Select": st.column_config.CheckboxColumn(
             label="Select",
-            default=True
+            default=False
         )
     }
 )
