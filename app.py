@@ -38,6 +38,7 @@ with st.expander("About this tool"):
         - Filtering based on relevant financial job titles
         - Generating personalized LinkedIn messages using AI
         - Allowing you to export contacts and messages in Excel and CSV format
+        - Allowing you to directly export leads to SugarCRM through Zapier.
 
         Developed by Federico Carota as part of a thesis project at HU University of Applied Sciences.
     """)
@@ -277,14 +278,6 @@ if st.button(TEXT["run_button"]) and domains:
 
 # === SEND TO ZAPIER ===
 if not st.session_state.df_salesflow.empty:
-    edited_df = st.data_editor(
-        st.session_state.df_salesflow,
-        use_container_width=True,
-        num_rows="dynamic",
-        key="lead_zapier"
-    )
-
-    # Use the returned DataFrame directly
     selected_leads_df = edited_df[edited_df["Select"] == True]
 
     if not selected_leads_df.empty:
