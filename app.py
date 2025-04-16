@@ -233,10 +233,10 @@ if st.button(TEXT["run_button"]) and domains:
         st.session_state.df_salesflow = df_salesflow
 
         # === EXPORT UI ===
-        st.markdown("### Step 5 – Select and Export Your Results")
-        st.markdown("✅ Use the checkboxes below to select leads to export or send via Zapier.")
+st.markdown("### Step 5 – Select and Export Your Results")
+st.markdown("✅ Use the checkboxes below to select leads to export or send via Zapier.")
 
-        edited_df = st.data_editor(
+edited_df = st.data_editor(
     st.session_state.df_salesflow,
     use_container_width=True,
     num_rows="dynamic",
@@ -249,8 +249,8 @@ if st.button(TEXT["run_button"]) and domains:
     }
 )
 
-       selected_leads_df = edited_df[edited_df["Select"] == True]
-       st.caption(f"✅ You selected {len(selected_leads_df)} lead(s).")
+selected_leads_df = edited_df[edited_df["Select"] == True]
+st.caption(f"✅ You selected {len(selected_leads_df)} lead(s).")
 
 st.session_state.edited_df = edited_df
 
