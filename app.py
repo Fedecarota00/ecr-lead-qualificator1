@@ -237,6 +237,9 @@ if not st.session_state.df_salesflow.empty:
     st.markdown("### Step 5 – Select and Export Your Results")
     st.markdown("✅ Use the checkboxes below to select leads to export or send via Zapier.")
 
+    # 🔧 Enforce correct boolean type for checkbox to be tracked
+    st.session_state.df_salesflow["Select"] = st.session_state.df_salesflow["Select"].astype(bool)
+
     edited_df = st.data_editor(
         st.session_state.df_salesflow,
         use_container_width=True,
